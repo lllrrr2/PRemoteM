@@ -169,16 +169,7 @@ namespace PRM.Model.Protocol.Base
         public string CommandBeforeConnected
         {
             get => _commandBeforeConnected;
-            set
-            {
-                if (SetAndNotifyIfChanged(ref _commandBeforeConnected, value))
-                {
-                    if (string.IsNullOrWhiteSpace(value) == false && File.Exists(value) == false)
-                    {
-                        throw new FileNotFoundException(value);
-                    }
-                }
-            }
+            set => SetAndNotifyIfChanged(ref _commandBeforeConnected, value);
         }
 
         private bool _hideCommandBeforeConnectedWindow = false;
@@ -192,16 +183,7 @@ namespace PRM.Model.Protocol.Base
         public string CommandAfterDisconnected
         {
             get => _commandAfterDisconnected;
-            set
-            {
-                if (SetAndNotifyIfChanged(ref _commandAfterDisconnected, value))
-                {
-                    if (string.IsNullOrWhiteSpace(value) == false && File.Exists(value) == false)
-                    {
-                        throw new FileNotFoundException(value);
-                    }
-                }
-            }
+            set => SetAndNotifyIfChanged(ref _commandAfterDisconnected, value);
         }
 
         private string _note = "";
@@ -312,7 +294,8 @@ namespace PRM.Model.Protocol.Base
             {
                 if (!string.IsNullOrWhiteSpace(CommandBeforeConnected) && File.Exists(CommandBeforeConnected))
                 {
-                    WinCmdRunner.RunScriptFile(CommandBeforeConnected, isAsync: false, isHideWindow: HideCommandBeforeConnectedWindow);
+                    var tuple = WinCmdRunner.DisassembleOneLineScriptCmd(CommandBeforeConnected);
+                    WinCmdRunner.RunFile(tuple.Item1, arguments: tuple.Item2, isAsync: false, isHideWindow: HideCommandBeforeConnectedWindow);
                 }
             }
             catch (Exception e)
@@ -327,7 +310,8 @@ namespace PRM.Model.Protocol.Base
             {
                 if (!string.IsNullOrWhiteSpace(CommandAfterDisconnected) && File.Exists(CommandAfterDisconnected))
                 {
-                    WinCmdRunner.RunScriptFile(CommandAfterDisconnected, isAsync: true, isHideWindow: true);
+                    var tuple = WinCmdRunner.DisassembleOneLineScriptCmd(CommandBeforeConnected);
+                    WinCmdRunner.RunFile(tuple.Item1, arguments: tuple.Item2, isAsync: true, isHideWindow: true);
                 }
             }
             catch (Exception e)
